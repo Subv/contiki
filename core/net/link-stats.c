@@ -37,7 +37,7 @@
 #include "net/link-stats.h"
 #include <stdio.h>
 
-#define DEBUG 0
+#define DEBUG 1
 #if DEBUG
 #define PRINTF(...) printf(__VA_ARGS__)
 #else
@@ -55,8 +55,8 @@
 
 /* EWMA (exponential moving average) used to maintain statistics over time */
 #define EWMA_SCALE            100
-#define EWMA_ALPHA             15
-#define EWMA_BOOTSTRAP_ALPHA   30
+#define EWMA_ALPHA             30
+#define EWMA_BOOTSTRAP_ALPHA   80
 
 /* ETX fixed point divisor. 128 is the value used by RPL (RFC 6551 and RFC 6719) */
 #define ETX_DIVISOR     LINK_STATS_ETX_DIVISOR
@@ -132,8 +132,8 @@ void
 link_stats_packet_sent(const linkaddr_t *lladdr, int status, int numtx)
 {
   struct link_stats *stats;
-  uint16_t packet_etx;
-  uint8_t ewma_alpha;
+  uint64_t packet_etx;
+  uint64_t ewma_alpha;
 
   if(status != MAC_TX_OK && status != MAC_TX_NOACK) {
     /* Do not penalize the ETX when collisions or transmission errors occur. */
@@ -146,10 +146,14 @@ link_stats_packet_sent(const linkaddr_t *lladdr, int status, int numtx)
     stats = nbr_table_add_lladdr(link_stats, lladdr, NBR_TABLE_REASON_LINK_STATS, NULL);
     if(stats != NULL) {
       stats->etx = LINK_STATS_INIT_ETX(stats);
+      stats->etx_var = 0;
+      stats->num_pkts = 0;
     } else {
       return; /* No space left, return */
     }
   }
+
+  stats->num_pkts++;
 
   /* Update last timestamp and freshness */
   stats->last_tx_time = clock_time();
@@ -160,9 +164,43 @@ link_stats_packet_sent(const linkaddr_t *lladdr, int status, int numtx)
   /* ETX alpha used for this update */
   ewma_alpha = link_stats_is_fresh(stats) ? EWMA_ALPHA : EWMA_BOOTSTRAP_ALPHA;
 
+  uint64_t old_var = stats->etx_var;
+  uint64_t old_etx = stats->etx;
+
+  uint64_t diff = (uint64_t)packet_etx * (uint64_t)packet_etx + (uint64_t)stats->etx * (uint64_t)stats->etx - 2 * (uint64_t)packet_etx * (uint64_t)stats->etx;
+
+  uint32_t var_alpha = 45;
+
+  if (stats->num_pkts > 10 || 1) {
+    stats->etx_var = 2 * var_alpha * var_alpha * old_etx * packet_etx / EWMA_SCALE 
+                    - var_alpha * var_alpha * packet_etx * packet_etx / EWMA_SCALE
+                    - var_alpha * var_alpha * old_etx * old_etx / EWMA_SCALE
+                    + var_alpha * old_etx * old_etx
+                    - 2 * var_alpha * old_etx * packet_etx
+                    + var_alpha * packet_etx * packet_etx
+                    - old_var * var_alpha / EWMA_SCALE
+                    + old_var;
+  }
+  
   /* Compute EWMA and update ETX */
   stats->etx = ((uint32_t)stats->etx * (EWMA_SCALE - ewma_alpha) +
       (uint32_t)packet_etx * ewma_alpha) / EWMA_SCALE;
+
+  uint64_t a = stats->etx_var / stats->etx;
+  uint64_t b = old_var / old_etx;
+  if (a > b) {
+    uint64_t c = a;
+    a = b;
+    b = c;
+  }
+
+  uint64_t divisor = old_var / old_etx;
+  if (divisor == 0)
+    divisor = 1;
+
+  uint64_t var_change = 100 * (b - a) / (divisor);
+
+  PRINTF("Updated ETX for node %u (%u, pkt_etx %u, numtx %u, oldvar %u, var %u, diff %u, change %u)\n", (unsigned int)lladdr->u8[7], (unsigned int)stats->etx, (unsigned int)packet_etx, (unsigned int)numtx, (unsigned int)old_var, (unsigned int)stats->etx_var, (unsigned int)diff, (unsigned int)var_change);
 }
 /*---------------------------------------------------------------------------*/
 /* Packet input callback. Updates statistics for receptions on a given link */

@@ -100,7 +100,10 @@ struct rpl_metric_container {
   uint8_t length;
   union metric_object {
     struct rpl_metric_object_energy energy;
-    uint16_t etx;
+    struct {
+      uint16_t mean;
+      uint16_t variance;
+    } etx;
   } obj;
 };
 typedef struct rpl_metric_container rpl_metric_container_t;

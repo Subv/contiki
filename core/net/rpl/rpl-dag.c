@@ -824,7 +824,7 @@ rpl_select_dag(rpl_instance_t *instance, rpl_parent_t *p)
 
   if(best_dag->preferred_parent != last_parent) {
     rpl_set_default_route(instance, rpl_get_parent_ipaddr(best_dag->preferred_parent));
-    PRINTF("RPL: Changed preferred parent, rank changed from %u to %u\n",
+    printf("RPL: Changed preferred parent, rank changed from %u to %u\n",
   	(unsigned)old_rank, best_dag->rank);
     RPL_STAT(rpl_stats.parent_switch++);
     if(RPL_IS_STORING(instance)) {

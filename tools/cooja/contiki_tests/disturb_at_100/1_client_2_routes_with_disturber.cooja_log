@@ -1,0 +1,46 @@
+[05:21:17 - main] [Cooja.java:3172] [WARN] - JAVA_HOME environment variable not set, Cooja motes may not compile
+[05:21:17 - main] [Cooja.java:1315] [INFO] - > Starting Cooja
+[05:21:17 - main] [Cooja.java:2856] [INFO] - External tools default settings: /external_tools_linux_64.config
+[05:21:17 - main] [Cooja.java:2886] [INFO] - External tools user settings: /home/node1/.cooja.user.properties
+[05:21:17 - main] [Simulation.java:422] [INFO] - Simulation random seed: 9073472898394997931
+[05:21:17 - main] [CompileContiki.java:140] [INFO] - > make udp-client.z1 TARGET=z1 
+[05:21:18 - main] [CompileContiki.java:140] [INFO] - > make udp-server.z1 TARGET=z1 
+[05:21:18 - main] [CompileContiki.java:140] [INFO] - > make router.z1 TARGET=z1 
+[05:21:18 - main] [MspMote.java:235] [INFO] - Loading firmware from: /home/node1/Documents/Sebastian/contiki/examples/ipv6/rpl-udp-send-test/udp-client.z1
+[05:21:18 - main] [MspMote.java:235] [INFO] - Loading firmware from: /home/node1/Documents/Sebastian/contiki/examples/ipv6/rpl-udp-send-test/udp-server.z1
+[05:21:19 - main] [MspMote.java:235] [INFO] - Loading firmware from: /home/node1/Documents/Sebastian/contiki/examples/ipv6/rpl-udp-send-test/router.z1
+[05:21:19 - main] [MspMote.java:235] [INFO] - Loading firmware from: /home/node1/Documents/Sebastian/contiki/examples/ipv6/rpl-udp-send-test/router.z1
+[05:21:19 - main] [Cooja.java:1781] [INFO] - Visualized plugin was not started: class org.contikios.cooja.plugins.SimControl
+[05:21:19 - main] [Cooja.java:1781] [INFO] - Visualized plugin was not started: class org.contikios.cooja.plugins.Visualizer
+[05:21:19 - main] [Cooja.java:1781] [INFO] - Visualized plugin was not started: class org.contikios.cooja.plugins.LogListener
+[05:21:19 - main] [Cooja.java:1781] [INFO] - Visualized plugin was not started: class org.contikios.cooja.plugins.TimeLine
+[05:21:19 - main] [Cooja.java:1781] [INFO] - Visualized plugin was not started: class org.contikios.cooja.plugins.Notes
+[05:21:19 - main] [ScriptRunner.java:430] [INFO] - Test script deactivated
+[05:21:19 - main] [LogScriptEngine.java:265] [INFO] - Script timeout in 1000000 ms
+[05:21:19 - main] [ScriptRunner.java:387] [INFO] - Test script activated
+[05:21:19 - Thread-2] [Simulation.java:253] [INFO] - Simulation main loop started, system time: 1542882079842
+[05:21:21 - Thread-2] [LogScriptEngine.java:389] [INFO] - Test script at 5.00%, done in 37.2 sec
+[05:21:22 - Thread-2] [LogScriptEngine.java:389] [INFO] - Test script at 10.00%, done in 21.6 sec
+[05:21:22 - Thread-2] [AbstractRadioMedium.java:298] [FATAL] - No radio connection found
+[05:21:22 - Thread-2] [LogScriptEngine.java:389] [INFO] - Test script at 15.00%, done in 16.6 sec
+[05:21:23 - Thread-2] [LogScriptEngine.java:389] [INFO] - Test script at 20.00%, done in 13.5 sec
+[05:21:23 - Thread-2] [LogScriptEngine.java:389] [INFO] - Test script at 25.00%, done in 11.5 sec
+[05:21:24 - Thread-2] [LogScriptEngine.java:389] [INFO] - Test script at 30.00%, done in 10.0 sec
+[05:21:24 - Thread-2] [LogScriptEngine.java:389] [INFO] - Test script at 35.00%, done in 8.7 sec
+[05:21:24 - Thread-2] [LogScriptEngine.java:389] [INFO] - Test script at 40.00%, done in 7.7 sec
+[05:21:25 - Thread-2] [LogScriptEngine.java:389] [INFO] - Test script at 45.00%, done in 6.8 sec
+[05:21:25 - Thread-2] [LogScriptEngine.java:389] [INFO] - Test script at 50.00%, done in 6.0 sec
+[05:21:26 - Thread-2] [LogScriptEngine.java:389] [INFO] - Test script at 55.00%, done in 5.2 sec
+[05:21:26 - Thread-2] [LogScriptEngine.java:389] [INFO] - Test script at 60.00%, done in 4.5 sec
+[05:21:27 - Thread-2] [LogScriptEngine.java:389] [INFO] - Test script at 65.00%, done in 3.9 sec
+[05:21:27 - Thread-2] [LogScriptEngine.java:389] [INFO] - Test script at 70.00%, done in 3.3 sec
+[05:21:27 - Thread-2] [LogScriptEngine.java:389] [INFO] - Test script at 75.00%, done in 2.7 sec
+[05:21:28 - Thread-2] [LogScriptEngine.java:389] [INFO] - Test script at 80.00%, done in 2.1 sec
+[05:21:28 - Thread-2] [LogScriptEngine.java:389] [INFO] - Test script at 85.00%, done in 1.6 sec
+[05:21:29 - Thread-2] [LogScriptEngine.java:389] [INFO] - Test script at 90.00%, done in 1.0 sec
+[05:21:29 - Thread-2] [LogScriptEngine.java:389] [INFO] - Test script at 95.00%, done in 0.5 sec
+[05:21:30 - Thread-2] [LogScriptEngine.java:375] [INFO] - Timeout event @ 1000000000
+[05:21:30 - Thread-1] [LogScriptEngine.java:309] [INFO] - Test script finished
+[05:21:30 - Thread-2] [Simulation.java:312] [INFO] - Simulation main loop stopped, system time: 1542882090077	Duration: 10235 ms	Simulated time 1000000 ms	Ratio 97.70395701025892
+[05:21:30 - AWT-EventQueue-1] [ScriptRunner.java:430] [INFO] - Test script deactivated
+[05:21:30 - Thread-4] [AbstractRadioMedium.java:196] [FATAL] - Connection source turned off radio: org.contikios.cooja.interfaces.ApplicationRadio@522e10e4

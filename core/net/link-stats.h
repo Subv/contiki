@@ -44,7 +44,9 @@
 
 /* All statistics of a given link */
 struct link_stats {
-  uint16_t etx;               /* ETX using ETX_DIVISOR as fixed point divisor */
+  uint32_t etx;               /* ETX using ETX_DIVISOR as fixed point divisor */
+  uint32_t num_pkts;
+  uint32_t etx_var;
   int16_t rssi;               /* RSSI (received signal strength) */
   uint8_t freshness;          /* Freshness of the statistics */
   clock_time_t last_tx_time;  /* Last Tx timestamp */

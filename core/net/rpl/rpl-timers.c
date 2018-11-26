@@ -161,7 +161,7 @@ handle_dio_timer(void *ptr)
 
   instance = (rpl_instance_t *)ptr;
 
-  PRINTF("RPL: DIO Timer triggered\n");
+  printf("RPL: DIO Timer triggered\n");
   if(!dio_send_ok) {
     if(uip_ds6_get_link_local(ADDR_PREFERRED) != NULL) {
       dio_send_ok = 1;
@@ -180,7 +180,7 @@ handle_dio_timer(void *ptr)
 #endif /* RPL_CONF_STATS */
       dio_output(instance, NULL);
     } else {
-      PRINTF("RPL: Suppressing DIO transmission (%d >= %d)\n",
+      printf("RPL: Suppressing DIO transmission (%d >= %d)\n",
              instance->dio_counter, instance->dio_redundancy);
     }
     instance->dio_send = 0;

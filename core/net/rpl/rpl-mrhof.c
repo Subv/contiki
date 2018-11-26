@@ -123,11 +123,42 @@ parent_link_metric(rpl_parent_t *p)
     uint32_t squared_etx = ((uint32_t)stats->etx * stats->etx) / LINK_STATS_ETX_DIVISOR;
     return (uint16_t)MIN(squared_etx, 0xffff);
 #else /* RPL_MRHOF_SQUARED_ETX */
+  return stats->etx + stats->etx_var / 128 / 128;
+#endif /* RPL_MRHOF_SQUARED_ETX */
+  }
+  return 0xffff;
+}
+
+static uint16_t
+parent_link_mean(rpl_parent_t *p)
+{
+  const struct link_stats *stats = rpl_get_parent_link_stats(p);
+  if(stats != NULL) {
+#if RPL_MRHOF_SQUARED_ETX
+    uint32_t squared_etx = ((uint32_t)stats->etx * stats->etx) / LINK_STATS_ETX_DIVISOR;
+    return (uint16_t)MIN(squared_etx, 0xffff);
+#else /* RPL_MRHOF_SQUARED_ETX */
   return stats->etx;
 #endif /* RPL_MRHOF_SQUARED_ETX */
   }
   return 0xffff;
 }
+
+static uint16_t
+parent_link_variance(rpl_parent_t *p)
+{
+  const struct link_stats *stats = rpl_get_parent_link_stats(p);
+  if(stats != NULL) {
+#if RPL_MRHOF_SQUARED_ETX
+    uint32_t squared_etx = ((uint32_t)stats->etx * stats->etx) / LINK_STATS_ETX_DIVISOR;
+    return (uint16_t)MIN(squared_etx, 0xffff);
+#else /* RPL_MRHOF_SQUARED_ETX */
+  return stats->etx_var / 128 / 128;
+#endif /* RPL_MRHOF_SQUARED_ETX */
+  }
+  return 0xffff;
+}
+
 /*---------------------------------------------------------------------------*/
 static uint16_t
 parent_path_cost(rpl_parent_t *p)
@@ -142,7 +173,7 @@ parent_path_cost(rpl_parent_t *p)
   /* Handle the different MC types */
   switch(p->dag->instance->mc.type) {
     case RPL_DAG_MC_ETX:
-      base = p->mc.obj.etx;
+      base = p->mc.obj.etx.mean + p->mc.obj.etx.variance;
       break;
     case RPL_DAG_MC_ENERGY:
       base = p->mc.obj.energy.energy_est << 8;
@@ -157,6 +188,66 @@ parent_path_cost(rpl_parent_t *p)
 
   /* path cost upper bound: 0xffff */
   return MIN((uint32_t)base + parent_link_metric(p), 0xffff);
+}
+
+static uint16_t
+parent_path_mean(rpl_parent_t *p)
+{
+  uint16_t base;
+
+  if(p == NULL || p->dag == NULL || p->dag->instance == NULL) {
+    return 0xffff;
+  }
+
+#if RPL_WITH_MC
+  /* Handle the different MC types */
+  switch(p->dag->instance->mc.type) {
+    case RPL_DAG_MC_ETX:
+      base = p->mc.obj.etx.mean;
+      break;
+    case RPL_DAG_MC_ENERGY:
+      base = p->mc.obj.energy.energy_est << 8;
+      break;
+    default:
+      base = p->rank;
+      break;
+  }
+#else /* RPL_WITH_MC */
+  base = p->rank;
+#endif /* RPL_WITH_MC */
+
+  /* path cost upper bound: 0xffff */
+  return MIN((uint32_t)base + parent_link_mean(p), 0xffff);
+}
+
+static uint16_t
+parent_path_variance(rpl_parent_t *p)
+{
+  uint16_t base;
+
+  if(p == NULL || p->dag == NULL || p->dag->instance == NULL) {
+    return 0xffff;
+  }
+
+#if RPL_WITH_MC
+  /* Handle the different MC types */
+  switch(p->dag->instance->mc.type) {
+    case RPL_DAG_MC_ETX:
+      base = p->mc.obj.etx.variance;
+      break;
+    case RPL_DAG_MC_ENERGY:
+      base = p->mc.obj.energy.energy_est << 8;
+      break;
+    default:
+      base = p->rank;
+      break;
+  }
+#else /* RPL_WITH_MC */
+  base = p->rank;
+#endif /* RPL_WITH_MC */
+
+  /* path cost upper bound: 0xffff */
+  return MIN((uint32_t)base + parent_link_variance(p), 0xffff);
 }
 /*---------------------------------------------------------------------------*/
 static rpl_rank_t
@@ -179,6 +270,7 @@ rank_via_parent(rpl_parent_t *p)
 static int
 parent_is_acceptable(rpl_parent_t *p)
 {
+  return 1;
   uint16_t link_metric = parent_link_metric(p);
   uint16_t path_cost = parent_path_cost(p);
   /* Exclude links with too high link metrics or path cost (RFC6719, 3.2.2) */
@@ -188,6 +280,7 @@ parent_is_acceptable(rpl_parent_t *p)
 static int
 parent_has_usable_link(rpl_parent_t *p)
 {
+  return 1;
   uint16_t link_metric = parent_link_metric(p);
   /* Exclude links with too high link metrics  */
   return link_metric <= MAX_LINK_METRIC;
@@ -278,7 +371,8 @@ update_metric_container(rpl_instance_t *instance)
       break;
     case RPL_DAG_MC_ETX:
       instance->mc.length = sizeof(instance->mc.obj.etx);
-      instance->mc.obj.etx = path_cost;
+      instance->mc.obj.etx.mean = parent_path_mean(dag->preferred_parent);
+      instance->mc.obj.etx.variance = parent_path_variance(dag->preferred_parent);
       break;
     case RPL_DAG_MC_ENERGY:
       instance->mc.length = sizeof(instance->mc.obj.energy);
